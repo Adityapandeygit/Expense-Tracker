@@ -1,29 +1,60 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
 import AuthLayout from '../../components/layout/authLayout';
-import { Link } from "react-router-dom";
-
-// import Input from '../../components/ui/Input'; // Make sure this exists or use basic input
+import { Link, useNavigate } from "react-router-dom";
+import Input from "../../components/Inputs/Input";
+import { validateEmail } from "../../utils/helper";
+import axiosInstance from '../../utils/axiosinstance';
+import { API_PATHS } from "../../utils/apiPaths";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // Handle login form
   const handleLogin = async (e) => {
     e.preventDefault();
-    // Example dummy logic
-    if (email === "admin@example.com" && password === "admin123") {
-      navigate("/dashboard");
-    } else {
-      setError("Invalid credentials");
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post(API_PATHS.AUTH_LOGIN, {
+        email,
+        password,
+      });
+
+      const { token, user } = response.data;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        navigate("/dashboard");
+      } else {
+        setError("Invalid response from server.");
+      }
+    } catch (err) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong. Try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Login Api call
 
   return (
     <AuthLayout>
@@ -32,35 +63,37 @@ const Login = () => {
         <p className='text-xs text-slate-700 mt-[5px] mb-6'>Please enter your details to log in</p>
 
         <form onSubmit={handleLogin} className='flex flex-col gap-4'>
-          
-            
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ravi@gmail.com"
-              type="text"
-              className="border p-2 rounded w-full"
-            />
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="ravi@gmail.com"
+            type="email"
+            className="border p-2 rounded w-full"
+          />
 
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 characters"
-              type="password"
-              className="border p-2 rounded w-full"
-            />
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Min 6 characters"
+            type="password"
+            className="border p-2 rounded w-full"
+          />
+
           {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
 
-          <button type="submit" className='btn-primary'>
-            LOGIN
+          <button
+            type="submit"
+            className='btn-primary disabled:opacity-50'
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
 
           <p className="text-[13px] text-slate-800 mt-3">
             Don't have an account?{" "}
             <Link className='font-medium text-primary underline' to="/signup">
-            SignUp
+              SignUp
             </Link>
-
           </p>
         </form>
       </div>
