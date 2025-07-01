@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost8000";
+export const BASE_URL = "http://localhost:8000";
 // utils/apiPaths.js
 export const API_PATHS={
     AUTH: {
@@ -22,7 +22,7 @@ export const API_PATHS={
         DOWNLOAD_EXPENSE:`/api/v1/expense/downexcel`,
     },
     IMAGE:{
-        UPLOAD_IMAGE: "/api/v1/expense/upload-image",
+        UPLOAD_IMAGE: "/api/v1/auth/upload-image",
     },
 
 };

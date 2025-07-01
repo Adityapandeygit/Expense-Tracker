@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import AuthLayout from '../../components/layout/authLayout';
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ProfilePhotoSelector from '../../components/Inputs/ProfilePhotoSelector';
+import {axiosInstance} from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { UserContext } from '../../context/UserContext';
+import  uploadImage  from '../../utils/uploadImage';
 
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null);
@@ -10,16 +14,49 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  const { updateUser } = useContext(UserContext); // ✅ Fixed useContext usage
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password || !fullName) {
       setError("Please fill all fields.");
       return;
     }
+
     setError("");
-    //SignUp Api call
+    let profileImageUrl = ""; // ✅ Properly declared
+
+    try {
+      // ✅ Upload image if provided
+      if (profilePic) {
+        const imgUploadRes = await uploadImage(profilePic);
+        profileImageUrl = imgUploadRes.imageUrl || "";
+      }
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        fullName,
+        email,
+        password,
+        profileImageUrl,
+      });
+
+      const { token, user } = response.data;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        updateUser(user);
+        navigate("/dashboard");
+      }
+
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
   };
 
   return (
@@ -59,35 +96,31 @@ const SignUp = () => {
               </div>
 
               <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
-              <input
-                type="password"
-                placeholder="Min 8 Characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
+                <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
+                <input
+                  type="password"
+                  placeholder="Min 8 Characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
             </div>
 
-            </div>
+            {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-          {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
+            <button type="submit" className="btn-primary">
+              SIGN UP
+            </button>
 
-          <button type="submit" className='btn-primary'>
-            SIGN UP
-          </button>
-
-          <p className="text-[13px] text-slate-800 mt-3">
-            Already have an account?{" "}
-            <Link className='font-medium text-primary underline' to="/login">
-            Login
-            </Link>
-
-          </p>
-            
+            <p className="text-[13px] text-slate-800 mt-3">
+              Already have an account?{" "}
+              <Link className="font-medium text-primary underline" to="/login">
+                Login
+              </Link>
+            </p>
           </form>
         </div>
-        
       </div>
     </AuthLayout>
   );

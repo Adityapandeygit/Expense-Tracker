@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import AuthLayout from '../../components/layout/authLayout';
 import { Link, useNavigate } from "react-router-dom";
-import Input from "../../components/Inputs/Input";
 import { validateEmail } from "../../utils/helper";
-import axiosInstance from '../../utils/axiosinstance';
+import {axiosInstance} from '../../utils/axiosInstance.js';
 import { API_PATHS } from "../../utils/apiPaths";
+import { UserContext } from '../../context/UserContext'; // ✅ use your actual path
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +12,9 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const { updateUser } = useContext(UserContext); // ✅ Correct hook usage
   const navigate = useNavigate();
+  
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -31,20 +33,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post(API_PATHS.AUTH_LOGIN, {
+      console.log("📤 Sending login request to:", API_PATHS.AUTH.LOGIN);
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
         password,
       });
-
       const { token, user } = response.data;
-
       if (token) {
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(user)); // personally added
+        updateUser(user);
         navigate("/dashboard");
       } else {
         setError("Invalid response from server.");
       }
+
     } catch (err) {
       if (err.response?.data?.message) {
         setError(err.response.data.message);
