@@ -33,7 +33,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      console.log("📤 Sending login request to:", API_PATHS.AUTH.LOGIN);
+      // console.log("📤 Sending login request to:", API_PATHS.AUTH.LOGIN);
 
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
@@ -42,6 +42,9 @@ const Login = () => {
       const { token, user } = response.data;
       if (token) {
         localStorage.setItem("token", token);
+        // ✅ Fetch fresh user data after storing token
+        const userRes = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO);
+        const user = userRes.data.user;
         localStorage.setItem("user", JSON.stringify(user)); // personally added
         updateUser(user);
         navigate("/dashboard");
