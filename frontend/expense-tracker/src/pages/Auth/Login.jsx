@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import AuthLayout from '../../components/layout/authLayout';
+import AuthLayout from '../../components/layout/AuthLayout.jsx';
 import { Link, useNavigate } from "react-router-dom";
 import { validateEmail } from "../../utils/helper";
 import {axiosInstance} from '../../utils/axiosInstance.js';
