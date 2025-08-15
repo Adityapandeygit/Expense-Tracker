@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import AuthLayout from '../../components/layout/authLayout';
+import AuthLayout from '../../components/layout/AuthLayout';
 import { Link, useNavigate } from "react-router-dom";
 import ProfilePhotoSelector from '../../components/Inputs/ProfilePhotoSelector';
 import {axiosInstance} from '../../utils/axiosInstance';
