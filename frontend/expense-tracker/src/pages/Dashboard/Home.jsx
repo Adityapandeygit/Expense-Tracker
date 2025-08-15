@@ -13,7 +13,7 @@ import { addThousandsSeparator } from "../../utils/helper";
 import RecentTransactions from "../../components/Dashboard/RecentTransactions";
 import FinanceOverview from "../../components/Dashboard/FinanceOverview";
 import ExpenseTransactions from "./ExpenseTransactions";
-import Last30DaysExpenses from "./last30DaysExpenses";
+import Last30DaysExpenses from "./Last30DaysExpenses";
 import RecentIncomeWithChart from "../../components/Dashboard/ReactIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 const Home = () => {
