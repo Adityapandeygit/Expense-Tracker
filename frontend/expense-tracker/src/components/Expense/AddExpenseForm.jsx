@@ -22,7 +22,7 @@ const AddExpenseForm = ({onAddExpense}) => {
             value={income.category}
             onChange={({target}) => handleChange("category",target.value)}
             label="Category"
-            placeholder="Beer, Wisky, Biryani etc"
+            placeholder="Shopping, Food, Travel etc"
             type="text"
         />
         <Input
